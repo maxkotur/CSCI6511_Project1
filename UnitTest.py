@@ -4,7 +4,7 @@ import unittest
 from main import Player
 
 
-class TestStringMethods(unittest.TestCase):
+class TestMethods(unittest.TestCase):
 
     def test_example1(self):
         problem = {
@@ -12,9 +12,10 @@ class TestStringMethods(unittest.TestCase):
             "target": 181
         }
         player = Player()
-        glob_target = problem["target"]
         result = player.run(problem=problem)
-        self.assertEqual(result, 21)
+        print(f"Min number of steps: {result}")
+        print("\n")
+        self.assertEqual(result, 19)
 
     def test_example2(self):
         problem = {
@@ -22,9 +23,10 @@ class TestStringMethods(unittest.TestCase):
             "target": 143
         }
         player = Player()
-        glob_target = problem["target"]
         result = player.run(problem=problem)
-        self.assertEqual(result, 8)
+        print(f"Min number of steps: {result}")
+        print("\n")
+        self.assertEqual(result, 7)
 
     def test_example3(self):
         problem = {
@@ -32,8 +34,9 @@ class TestStringMethods(unittest.TestCase):
             "target": 143
         }
         player = Player()
-        glob_target = problem["target"]
         result = player.run(problem=problem)
+        print(f"Min number of steps: {result}")
+        print("\n")
         self.assertEqual(result, -1)
 
     def test_example4(self):
@@ -42,8 +45,9 @@ class TestStringMethods(unittest.TestCase):
             "target": 2
         }
         player = Player()
-        glob_target = problem["target"]
         result = player.run(problem=problem)
+        print(f"Min number of steps: {result}")
+        print("\n")
         self.assertEqual(result, -1)
 
     def test_example5(self):
@@ -52,9 +56,10 @@ class TestStringMethods(unittest.TestCase):
             "target": 6
         }
         player = Player()
-        glob_target = problem["target"]
         result = player.run(problem=problem)
-        self.assertEqual(result, 8)
+        print(f"Min number of steps: {result}")
+        print("\n")
+        self.assertEqual(result, 7)
 
     def test_example6(self):
         problem = {
@@ -62,9 +67,10 @@ class TestStringMethods(unittest.TestCase):
             "target": 18
         }
         player = Player()
-        glob_target = problem["target"]
         result = player.run(problem=problem)
-        self.assertEqual(result, 11)
+        print(f"Min number of steps: {result}")
+        print("\n")
+        self.assertEqual(result, 9)
 
     def test_example7(self):
         problem = {
@@ -72,19 +78,21 @@ class TestStringMethods(unittest.TestCase):
             "target": 0
         }
         player = Player()
-        glob_target = problem["target"]
         result = player.run(problem=problem)
+        print(f"Min number of steps: {result}")
+        print("\n")
         self.assertEqual(result, 0)
 
-    # def test_example(self):
-    #     problem = {
-    #         "size": [2,3,5,19,121,852],
-    #         "target": 11443
-    #     }
-    #     player = Player()
-    #     glob_target = problem["target"]
-    #     result = player.run(problem=problem)
-    #     self.assertEqual(result, 36)
+    def test_example8(self):
+        problem = {
+            "size": [2,3,5,19,121,852],
+            "target": 11443
+        }
+        player = Player()
+        result = player.run(problem=problem)
+        print(f"Min number of steps: {result}")
+        print("\n")
+        self.assertEqual(result, 36)
 
 if __name__ == '__main__':
     unittest.main()

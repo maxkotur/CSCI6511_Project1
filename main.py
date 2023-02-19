@@ -1,4 +1,3 @@
-from collections import defaultdict
 from queue import PriorityQueue
 import copy
 
@@ -39,7 +38,7 @@ class Bucket:
             elif unit_to_full < self.filled:
                 other_bucket.filled = other_bucket.size
                 self.filled = self.filled - unit_to_full
-            return True, other_bucket.filled
+            return True, other_bucket
 
     def pour_capacitor(self, cap):
         if self.filled == 0:
@@ -59,9 +58,13 @@ class Node:
         self.state_capacitor = state_capacitor
         self.heuristic = float('inf')
         self.target = target
+        self.consec_pours = 0
 
     def update_heuristic(self, cost):
         self.heuristic = cost
+
+    def update_consec_pours(self, cost):
+        self.consec_pours = cost
 
     def update_state_capacitor(self, cost):
         self.state_capacitor = cost
@@ -92,7 +95,8 @@ class Node:
                 action_performed, other = temp_bucket_array[selected_index].pour(
                     other_bucket=temp_bucket_array[target_index])
                 if action_performed:
-                    temp_bucket_array[target_index] = Bucket(size=other, target=self.target)
+                    temp_bucket_array[target_index] = Bucket(size=other.size, target=self.target)
+                    temp_bucket_array[target_index].filled = other.filled
 
         return temp_bucket_array, action_performed
 
@@ -136,14 +140,22 @@ class Node:
                 # print("Cap")
                 children.append(self.create_Node(node, new_bucket_array, action))
 
-            if i == len(bucket_array) - 1:
-                for j, bucket_j in enumerate(bucket_array):
-                    if i != j:
+            if len(bucket_array) > 1:
+                rem_size = bucket_array[-1].size - bucket_array[-2].size - 2
+                if (rem_size <= self.target - node.state_capacitor) or (len(bucket_array) < 4):
+                    # print(f"Size: {rem_size} and State to targ: {self.target - node.state_capacitor}")
+                    for j, bucket_j in enumerate(bucket_array):
+                        if i <= j:
+                            break
                         new_bucket_array, action = node.perform_action_and_return_buckets(bucket_array, i, "Pour", j, 0)
                         if action:
                             # print("Pour")
                             children.append(self.create_Node(node, new_bucket_array, node.state_capacitor))
-
+                            cost = node.consec_pours
+                            if cost < len(bucket_array):
+                                children[-1].update_consec_pours(cost + 1)
+                            else:
+                                children.pop()
         return children
 
     def create_Node(self, parent_node, bucket_array, state_capacitor):
@@ -231,7 +243,7 @@ class Player:
             node = node.parent_node
             node.update_heuristic(cost)
             for child in node.children:
-                if child.heuristic != float('inf'):
+                if child.heuristic == float('inf'):
                     child.update_heuristic(cost)
                 cost += 1
         return start_node
@@ -241,16 +253,14 @@ class Player:
         pq = PriorityQueue()
         pq.put((0, start))
         visited = []
-        steps = 0
 
         while not pq.empty():
             # Get the node with the lowest cost
             cost, current_node = pq.get()
 
             # Check if we have reached the goal state
-            if self.compare_Nodes(current_node, goal_state):
-                return steps
-            steps += 1
+            if current_node.state_capacitor == goal_state.state_capacitor:
+                return current_node
 
             # Mark the node as visited
             visited.append(current_node)
@@ -272,8 +282,23 @@ class Player:
         start_node = visited[0]
         end_node = visited[len(visited) - 1]
         self.apply_heuristic(start_node, end_node)
-        steps = self.a_star(start_node, end_node)
-
+        end_node = self.a_star(start_node, end_node)
+        path = []
+        while not self.compare_Nodes(start_node, end_node):
+            bucket_array = end_node.bucket_array
+            buckets = []
+            for bucket in bucket_array:
+                buckets.append(bucket.filled)
+            buckets.append(end_node.state_capacitor)
+            path.append(buckets)
+            end_node = end_node.parent_node
+        path.reverse()
+        i = 0
+        for p in path:
+            i += 1
+            print(f"Step {i}")
+            print(p)
+        steps = len(path)
         return steps
 
 
@@ -284,6 +309,7 @@ if __name__ == '__main__':
     targ = int(targ)
     li = list(string.split(","))
     li = [int(i) for i in li]
+    li.sort()
     problem = {
         "size": li,
         "target": targ
